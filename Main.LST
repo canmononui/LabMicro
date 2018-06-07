@@ -1,0 +1,152 @@
+C51 COMPILER V8.08   MAIN                                                                  04/21/2016 02:22:52 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN Main.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          /*  Name     : main.c
+   2           *  Purpose  : Main file for DS1307 RTC code for AT89C51.
+   3           *  Author   : M.Saeed Yasin
+   4           *  Date     : 06-11-12
+   5           *  Website  : saeedsolutions.blogspot.com
+   6           *  Revision : None
+   7           */
+   8          #include "Includes.h"
+   9          unsigned char BUFF[4]={1,1,1,1},KE,st;
+  10          void changBUFF(unsigned char level)
+  11          {
+  12   1              unsigned int i;
+  13   1              for(i=0;i<3;i++)
+  14   1              {
+  15   2                      BUFF[i]=BUFF[i+1];
+  16   2              }
+  17   1              BUFF[3]= level;
+  18   1      }
+  19          unsigned char startlevel()
+  20          {
+  21   1              unsigned char le[3]={0,0,0},i,max,c;
+  22   1              for(i=0;i<4;i++)
+  23   1              {
+  24   2                      if(BUFF[i]==1)
+  25   2                      {
+  26   3                              le[0]++;
+  27   3                      }
+  28   2                      else if(BUFF[i]==2)
+  29   2                      {
+  30   3                              le[1]++;
+  31   3                      }
+  32   2                      else if(BUFF[i]==3)
+  33   2                      {
+  34   3                              le[2]++;
+  35   3                      }
+  36   2              }
+  37   1              max=le[0];
+  38   1              c=0;
+  39   1              for(i=1;i<3;i++)
+  40   1              {
+  41   2                      if(le[i]>max)
+  42   2                      {
+  43   3                              max=le[i];
+  44   3                              c=i;
+  45   3                      }
+  46   2              }
+  47   1              return (c+1);
+  48   1      }
+  49          // Main function
+  50          void main()
+  51          {       
+  52   1      
+  53   1              InitLCD();      // Initialize LCD       
+  54   1              InitI2C();      // Initialize i2c pins
+  55   1      
+C51 COMPILER V8.08   MAIN                                                                  04/21/2016 02:22:52 PAGE 2   
+
+  56   1      
+  57   1              P1 = 0xff;
+  58   1              P2 = 0xff;
+  59   1              while (1)
+  60   1              {
+  61   2                      //WriteStringToLCD("aaa");
+  62   2                      // Display RTC time on first line of LCD
+  63   2                      //Check_Set_Time();// Display RTC date on second line of LCD
+  64   2                      //DisplayTimeToLCD(Get_DS1307_RTC_Time());              
+  65   2                      KE = get_key();
+  66   2                      if (KE== 12){
+  67   3                              st=startlevel();
+  68   3                              if (st== 1){
+  69   4                                      P1=0xfe;
+  70   4                                      gotolcd(0x40);// Set Cursor Line-1
+  71   4                                      
+  72   4                              }
+  73   3                              else if (st== 2){
+  74   4                                      P1=0xfd;
+  75   4                                      gotolcd(0x40);// Set Cursor Line-1
+  76   4                              
+  77   4                              }
+  78   3                              else if (st== 3){
+  79   4                                      P1=0xfb;
+  80   4                                      gotolcd(0x40);// Set Cursor Line-1
+  81   4                                      
+  82   4                              }
+  83   3                              while(KE!=11)
+  84   3                              {
+  85   4                                      DisplayTimeToLCD(Get_DS1307_RTC_Time());
+  86   4                                      KE = get_key();
+  87   4                                      if (KE== 1){
+  88   5                                              P1=0xfe;
+  89   5                                              gotolcd(0x40);// Set Cursor Line-1
+  90   5                                              
+  91   5                                              changBUFF(1);
+  92   5                                              while(KE!=0xff)
+  93   5                                              {
+  94   6                                                      KE = get_key();
+  95   6                                                      dmsec(30);
+  96   6                                              }
+  97   5                                      }
+  98   4                                      else if (KE== 2){
+  99   5                                              P1=0xfd;
+ 100   5                                              gotolcd(0x40);// Set Cursor Line-1
+ 101   5                                              
+ 102   5                                              changBUFF(2);
+ 103   5                                              while(KE!=0xff)
+ 104   5                                              {
+ 105   6                                                      KE = get_key();
+ 106   6                                                      dmsec(30);
+ 107   6                                              }
+ 108   5                                      }
+ 109   4                                      else if (KE== 3){
+ 110   5                                              P1=0xfb;
+ 111   5                                              gotolcd(0x40);// Set Cursor Line-1
+ 112   5                                              
+ 113   5                                              changBUFF(3);
+ 114   5                                              while(KE!=0xff)
+ 115   5                                              {
+ 116   6                                                      KE = get_key();
+ 117   6                                                      dmsec(30);
+C51 COMPILER V8.08   MAIN                                                                  04/21/2016 02:22:52 PAGE 3   
+
+ 118   6                                              }
+ 119   5                                      }
+ 120   4                              }
+ 121   3                              P1=0xff;
+ 122   3                              ClearLCDScreen();
+ 123   3                      }
+ 124   2              }//End of while                                                                                                 
+ 125   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    306    ----
+   CONSTANT SIZE    =      3    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      6       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

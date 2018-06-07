@@ -1,0 +1,8 @@
+"STARTUP.obj",
+"DS1307.obj",
+"I2C.obj",
+"LCD.obj",
+"Main.obj",
+"Keypad.obj" 
+TO "Project" 
+RAMSIZE(256) 

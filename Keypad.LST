@@ -1,0 +1,148 @@
+C51 COMPILER V8.08   KEYPAD                                                                04/21/2016 02:22:52 PAGE 1   
+
+
+C51 COMPILER V8.08, COMPILATION OF MODULE KEYPAD
+OBJECT MODULE PLACED IN Keypad.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE Keypad.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "Includes.h"
+   2          #include <intrins.h>
+   3          #include <absacc.h>
+   4          
+   5          unsigned char Hour[2];
+   6          unsigned char Min[2];
+   7          unsigned char Sec[2];
+   8          unsigned char H;
+   9          unsigned char M;
+  10          unsigned char S ;
+  11          unsigned char KEY_DATA;
+  12          unsigned char alarm1[2];
+  13          unsigned char alarm2[2];
+  14          unsigned char alarm3[2];
+  15          
+  16          void dmsec(unsigned int count2)
+  17          {
+  18   1      TMOD = (TMOD & 0xF0) | 0x01;/*Set T/C0 Mode*/
+  19   1      TR0=1;
+  20   1      while (count2)
+  21   1      {if (TF0==1)
+  22   2      {TR0=0; /* Stop Timer 0*/
+  23   3      TF0=0;
+  24   3      count2--;
+  25   3      TH0 = 0xEC; /* Load Timer withFFFFH-5000 */
+  26   3      TL0 = 0x77;
+  27   3      TR0 = 1; /* Start Timer 0*/
+  28   3      }
+  29   2      }
+  30   1      }
+  31          
+  32          unsigned char get_key(void)     
+  33          {       
+  34   1              RowA = 0; RowB = 1; RowC = 1; RowD = 1;         //Test Row A
+  35   1      
+  36   1              if (C1 == 0) { delay(10000); while (C1==0); return 7; }
+  37   1              if (C2 == 0) { delay(10000); while (C2==0); return 8; }
+  38   1              if (C3 == 0) { delay(10000); while (C3==0); return 9; }
+  39   1      
+  40   1              RowA = 1; RowB = 0; RowC = 1; RowD = 1;         //Test Row B
+  41   1      
+  42   1              if (C1 == 0) { delay(10000); while (C1==0); return 4; }
+  43   1              if (C2 == 0) { delay(10000); while (C2==0); return 5; }
+  44   1              if (C3 == 0) { delay(10000); while (C3==0); return 6; }
+  45   1              
+  46   1              RowA = 1; RowB = 1; RowC = 0; RowD = 1;         //Test Row C
+  47   1      
+  48   1              if (C1 == 0) { delay(10000); while (C1==0); return 1; }
+  49   1              if (C2 == 0) { delay(10000); while (C2==0); return 2; }
+  50   1              if (C3 == 0) { delay(10000); while (C3==0); return 3; }
+  51   1              
+  52   1              RowA = 1; RowB = 1; RowC = 1; RowD = 0;         //Test Row D
+  53   1      
+  54   1              if (C1 == 0) { delay(10000); while (C1==0); return 10; }
+  55   1              if (C2 == 0) { delay(10000); while (C2==0); return 11; }
+C51 COMPILER V8.08   KEYPAD                                                                04/21/2016 02:22:52 PAGE 2   
+
+  56   1              if (C3 == 0) { delay(10000); while (C3==0); return 12; }
+  57   1      
+  58   1              return 0xff;            // Means no key has been pressed
+  59   1      }         
+  60          
+  61          
+  62          void Check_Set_Time(void)
+  63          {
+  64   1              KEY_DATA = get_key();
+  65   1              if(KEY_DATA =='*')
+  66   1              {
+  67   2                      Display_Set_Time();
+  68   2                      H = ((((Hour[0]<<1)&0x0F)>>1)*10)|((((Hour[1]<<1)&0x0F)>>1));
+  69   2                      M = ((((Min[0]<<1)&0x0F)>>1)*10)|((((Min[1]<<1)&0x0F)>>1));
+  70   2                      S = ((((Sec[0]<<1)&0x0F)>>1)*10)|((((Sec[1]<<1)&0x0F)>>1));
+  71   2                      delay(65000);
+  72   2                      InitLCD();      // Initialize LCD       
+  73   2                      InitI2C();      // Initialize i2c pins
+  74   2                      Set_DS1307_RTC_Time(AM_Time, H, M, S);
+  75   2              }
+  76   1              
+  77   1              
+  78   1              
+  79   1      }
+  80          
+  81          char Check_Key(void)
+  82          {       
+  83   1              char k = 'n';
+  84   1              while(1)
+  85   1                      {       
+  86   2                              k = get_key();
+  87   2                              delay(10000);
+  88   2                              if(k != 'n' && k != '*')
+  89   2                              {break;}
+  90   2                              
+  91   2                      }
+  92   1              return k;
+  93   1      }
+  94          
+  95          void Show_LCD(void)
+  96          {
+  97   1                              WriteDataToLCD(' ');
+  98   1                              Hour[0] = Check_Key();
+  99   1                              WriteDataToLCD(Hour[0]);
+ 100   1                              Hour[1] = Check_Key();
+ 101   1                              WriteDataToLCD(Hour[1]);
+ 102   1                              WriteDataToLCD(':');
+ 103   1                              Min[0] = Check_Key();
+ 104   1                              WriteDataToLCD(Min[0]);
+ 105   1                              Min[1] = Check_Key();
+ 106   1                              WriteDataToLCD(Min[1]);
+ 107   1                              WriteDataToLCD(':');
+ 108   1                              Sec[0] = Check_Key();
+ 109   1                              WriteDataToLCD(Sec[0]);
+ 110   1                              Sec[1] = Check_Key();                      
+ 111   1                              WriteDataToLCD(Sec[1]);
+ 112   1      }
+ 113          
+ 114          void Display_Set_Time(void)
+ 115          {
+ 116   1                              WriteCommandToLCD(0xc0);
+ 117   1                              WriteStringToLCD("SET_TIM");
+C51 COMPILER V8.08   KEYPAD                                                                04/21/2016 02:22:52 PAGE 3   
+
+ 118   1                              Show_LCD();
+ 119   1                              
+ 120   1      }
+ 121          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    488    ----
+   CONSTANT SIZE    =      8    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

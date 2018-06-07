@@ -1,0 +1,22 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\Saeed\Desktop\8051 with DS1307 RTC Code\Code\RTC.uvproj
+Project File Date:  11/06/2012
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling DS1307.c...
+compiling I2C.c...
+compiling LCD.c...
+compiling Main.c...
+linking...
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_WRITE_BYTE_TO_DS1307_RTC?DS1307
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_READ_BYTE_FROM_DS1307_RTC?DS1307
+Program Size: data=29.0 xdata=0 code=1896
+creating hex file from "RTC"...
+"RTC" - 0 Error(s), 2 Warning(s).
